@@ -1,11 +1,11 @@
 {
     "name": "eng1003.uploader",
     "title": "ENG1003 Uploader",
-    "description": "Uploads ENG1003 assignments to servers",
+    "description": "Uploads Monash University ENG1003 assignments to web server.",
     "version": "1.0.0",
     "author": "Nawfal Ali, Michael Wybrow",
     "license": "MIT",
     "engines": {
-        "brackets": ">=0.31.0"
+        "brackets": ">=1.1.0"
     }
 }

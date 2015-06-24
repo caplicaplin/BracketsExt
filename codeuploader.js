@@ -1,5 +1,5 @@
 /*
- * Assignment 2 uploader
+ * Assignment uploader
  *
  * Written by Michael Wybrow
  *
@@ -34,7 +34,6 @@ define(function (require, exports, module) {
         var currentCode = currentCodePara;
         var Dialogs = DialogsPara;
         var DefaultDialogs = DefaultDialogsPara;
-        var myCodeMirror;
         var useIndividualDirOption = false;
 
         function post(path, params, method) {
@@ -59,7 +58,7 @@ define(function (require, exports, module) {
         };
 
         this.uploadToWebsite = function () {
-            console.log('uploadtoWebsite Called');
+            console.log('uploadToWebsite() called');
             var str = systemSettings.server + '/a1publishcheck.php?teamDir=' + systemSettings.teamDir + '&user=' + systemSettings.userName + '&assignment=a2&callback=define';
             require([str], function (data) {
                 if (data.error !== undefined) {
