@@ -30,7 +30,7 @@
 
 define(function (require, exports, module) {
     var systemSettings = {
-        server: 'http://eng1003.eng.monash.edu/',
+        server: 'https://eng1003.eng.monash.edu/',
         teamDir: '',
         userName: '',
         updateTeamDir: '',
