@@ -79,8 +79,15 @@ define(function (require, exports, module) {
         var $dlg = $(".eng1003setting-dialog.instance");
         $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
         $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
-        //Update the Assignment List Box
-        $dlg.find("#assignment").val((systemSettings.assignment) ? (systemSettings.assignment) : "a1");
+        
+        // Update the Assignment List Box.  Select the first option by default.
+        var chosenAssignment = $("#assignment option:first").val();
+        if (systemSettings.assignment) {
+            
+            // Or use the user's saved preference. 
+            chosenAssignment = systemSettings.assignment;
+        }
+        $dlg.find("#assignment").val(chosenAssignment);
 
         // if the user hits the cancel, this function closes the settings window
         function handleCancel() {

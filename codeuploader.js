@@ -59,7 +59,7 @@ define(function (require, exports, module) {
 
         this.uploadToWebsite = function () {
             console.log('uploadToWebsite() called');
-            var str = systemSettings.server + '/a1publishcheck.php?teamDir=' + systemSettings.teamDir + '&user=' + systemSettings.userName + '&assignment=a2&callback=define';
+            var str = systemSettings.server + '/uploader/publishcheck.php?teamDir=' + systemSettings.teamDir + '&user=' + systemSettings.userName + '&assignment=' + systemSettings.assignment + '&callback=define';
             require([str], function (data) {
                 if (data.error !== undefined) {
                     Dialogs.showModalDialog(DefaultDialogs.DIALOG_ID_INFO, "ENG1003 Uploader", data.error);
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
                 } else {
                     var teamDir = systemSettings.teamDir;
                     var username = systemSettings.userName;
-                    var path = systemSettings.server + '/a1publish.php';
+                    var path = systemSettings.server + '/uploader/publish.php';
                     var params = {
                         teamDir: teamDir,
                         user: username,
