@@ -98,7 +98,7 @@ define(function (require, exports, module) {
         function handleOk() {
             // Data validation
             var $dlg = $(".eng1003setting-dialog.instance");
-            systemSettings.server = $dlg.find("#server").val();
+	    systemSettings.server = $dlg.find("#server").val();
             if (systemSettings.server === '') {
 
                 Dialogs.showModalDialog(DefaultDialogs.DIALOG_ID_INFO, "ENG1003 Uploader", strings.SERVER_NOT_FOUND);
