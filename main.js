@@ -61,6 +61,7 @@ define(function (require, exports, module) {
     ExtensionUtils     = brackets.getModule("utils/ExtensionUtils");
     directory          = brackets.getModule("filesystem/Directory");
     FileSystem         = brackets.getModule("filesystem/FileSystem");
+    var ProjectManager      = brackets.getModule("project/ProjectManager");
 
     var mainDialog  = require("text!dialog.html");
     toolbarUploader = require("text!toolbar-uploader.html");
@@ -165,15 +166,13 @@ define(function (require, exports, module) {
             return;
         }
 
+        var projectRoot = ProjectManager.getProjectRoot().fullPath;
 
-        // Get the current document
-        var currentDoc = DocumentManager.getCurrentDocument();
-
-        console.log(DocumentManager.getCurrentDocument().file);
-        var uploader          = new codeUploader(systemSettings, currentDoc.getText(), Dialogs, DefaultDialogs);
+        console.log(projectRoot);
+        var uploader          = new codeUploader(systemSettings, Dialogs, DefaultDialogs);
         var listFiles         = [];
         var listFilesFullPath = [];
-        getFileList(DocumentManager.getCurrentDocument().file._parentPath, 1);
+        getFileList(projectRoot, 1);
 
 
         function getFileList(fileName, level) {
