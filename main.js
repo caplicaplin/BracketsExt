@@ -30,39 +30,41 @@
 
 define(function (require, exports, module) {
     var systemSettings = {
-        server: 'https://eng1003.eng.monash.edu/',
-        teamDir: '',
-        userName: '',
+        server       : 'https://eng1003.eng.monash.edu/',
+        teamDir      : '',
+        userName     : '',
         updateTeamDir: '',
         updateUserDir: 'checked',
-        assignment: '',
-        rememberMe: 'checked'
+        assignment   : '',
+        rememberMe   : 'checked'
     };
     // firstRun i used to show the settings window only if the user hits the upload without checking his settings 
-    var firstRun = true;
+    var firstRun       = true;
     // System Strings
-    var strings = {
-        SERVER_NOT_FOUND: 'Please Enter Server Address',
-        USER_NOT_FOUND: 'Please Enter User Name',
-        TEAM_NOT_FOUND: 'Please Enter Team Directory Name',
+    var strings        = {
+        SERVER_NOT_FOUND   : 'Please Enter Server Address',
+        USER_NOT_FOUND     : 'Please Enter User Name',
+        TEAM_NOT_FOUND     : 'Please Enter Team Directory Name',
         SETTINGS_MENU_TITLE: 'ENG1003 Uploader Settings',
-        UPLOAD_SHORTCUT: 'Ctrl-Shift-U',
-        UPLOAD_MENU_TITLE: 'ENG1003 Uploader',
-        STORAGE_KEY: 'Eng1003Uploader.Monash',
+        UPLOAD_SHORTCUT    : 'Ctrl-Shift-U',
+        UPLOAD_MENU_TITLE  : 'ENG1003 Uploader',
+        STORAGE_KEY        : 'Eng1003Uploader.Monash',
     };
 
     //Required Modules
     var CommandManager = brackets.getModule("command/CommandManager"),
-        Menus = brackets.getModule("command/Menus"),
-        Dialogs = brackets.getModule("widgets/Dialogs"),
+        Menus          = brackets.getModule("command/Menus"),
+        Dialogs        = brackets.getModule("widgets/Dialogs"),
         DefaultDialogs = brackets.getModule("widgets/DefaultDialogs"),
-        AppInit = brackets.getModule("utils/AppInit");
-    DocumentManager = brackets.getModule("document/DocumentManager");
-    ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
+        AppInit        = brackets.getModule("utils/AppInit");
+    DocumentManager    = brackets.getModule("document/DocumentManager");
+    ExtensionUtils     = brackets.getModule("utils/ExtensionUtils");
+    directory          = brackets.getModule("filesystem/Directory");
+    FileSystem         = brackets.getModule("filesystem/FileSystem");
 
-    var mainDialog = require("text!dialog.html");
+    var mainDialog  = require("text!dialog.html");
     toolbarUploader = require("text!toolbar-uploader.html");
-    codeUploader = require('codeuploader');
+    codeUploader    = require('codeuploader');
 
 
     // System log function
@@ -70,7 +72,7 @@ define(function (require, exports, module) {
     function log(s) {
         console.log("[ENG1003Uploader] " + s);
     }
-    
+
     // This function handles the settings windows
     function handleSettings() {
         // Show the settings window
@@ -79,11 +81,11 @@ define(function (require, exports, module) {
         var $dlg = $(".eng1003setting-dialog.instance");
         $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
         $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
-        
+
         // Update the Assignment List Box.  Select the first option by default.
         var chosenAssignment = $("#assignment option:first").val();
         if (systemSettings.assignment) {
-            
+
             // Or use the user's saved preference. 
             chosenAssignment = systemSettings.assignment;
         }
@@ -93,11 +95,11 @@ define(function (require, exports, module) {
         function handleCancel() {
             Dialogs.cancelModalDialogIfOpen("eng1003setting-dialog");
         }
-        
+
         // if the user selects the UPLOAD button, 
         function handleOk() {
             // Data validation
-            var $dlg = $(".eng1003setting-dialog.instance");
+            var $dlg              = $(".eng1003setting-dialog.instance");
             systemSettings.server = $dlg.find("#server").val();
             if (systemSettings.server === '') {
 
@@ -117,11 +119,11 @@ define(function (require, exports, module) {
                 return;
             }
             // No need to show the settings window again
-            firstRun = false;
+            firstRun                     = false;
             systemSettings.updateTeamDir = $dlg.find("#updateTeamDir:checked").val();
             systemSettings.updateUserDir = $dlg.find("#updateUserDir:checked").val();
-            systemSettings.rememberMe = $dlg.find("#rememberMe:checked").val();
-            systemSettings.assignment = $dlg.find("#assignment").val();
+            systemSettings.rememberMe    = $dlg.find("#rememberMe:checked").val();
+            systemSettings.assignment    = $dlg.find("#assignment").val();
             //Save/Remove Settings to Local Storage
             setSettingsToStorage();
             //Upload the Document
@@ -166,12 +168,45 @@ define(function (require, exports, module) {
 
         // Get the current document
         var currentDoc = DocumentManager.getCurrentDocument();
-        // Get a reference from the uploader.
-        var uploader = new codeUploader(systemSettings, currentDoc.getText(), Dialogs, DefaultDialogs);
-        // Upload....
-        uploader.uploadToWebsite();
+
+        console.log(DocumentManager.getCurrentDocument().file);
+        var uploader          = new codeUploader(systemSettings, currentDoc.getText(), Dialogs, DefaultDialogs);
+        var listFiles         = [];
+        var listFilesFullPath = [];
+        getFileList(DocumentManager.getCurrentDocument().file._parentPath, 1);
+
+
+        function getFileList(fileName, level) {
+            var directory = FileSystem.getDirectoryForPath(fileName);
+            directory.getContents(function (err, entries) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    entries.forEach(function (entry) {
+                        console.log('Entry: _isDir' + entry._isDirectory + '   entry Path' + entry._path);
+                        if (entry._isDirectory) {
+
+                            getFileList(entry._path, (level + 1));
+                        }
+                        else {
+                            listFiles.push(getParentFilename(entry._path, level));
+                            listFilesFullPath.push(entry._path);
+                        }
+                    });
+                }
+            });
+            if (level === 1) {
+                console.log(listFiles);
+                uploader.uploadToWebsite(listFiles, listFilesFullPath);
+            }
+        }
     }
-    
+
+
+    function getParentFilename(fullName, depth) {
+        return (fullName.split('/').slice(-depth).join('/') );
+    }
+
     // Get saved settings from localStorage; if any....
     function getSettingsFromStorage() {
         var savedSettings = localStorage.getItem(strings.STORAGE_KEY);
@@ -180,14 +215,14 @@ define(function (require, exports, module) {
             systemSettings = JSON.parse(savedSettings);
         }
     }
-    
+
     // Main Function
     AppInit.appReady(function () {
         //Load CSS file
         ExtensionUtils.loadStyleSheet(module, "css/style.css");
         log("Upload Assignment Extenstion");
         getSettingsFromStorage();
-        
+
         // Settings Window and Shortcut
         var menu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
         menu.addMenuDivider();

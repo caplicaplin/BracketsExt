@@ -3,7 +3,7 @@
     "title": "ENG1003 Uploader",
     "description": "Uploads Monash University ENG1003 assignments to web server.",
     "homepage": "https://github.com/MonashUni-ENG1003/BracketsExt",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "author": "ENG1003 staff <ENG1003.Clayton-x@monash.edu>",
     "license": "MIT",
     "engines": {
